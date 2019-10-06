@@ -1,0 +1,4 @@
+venv/
+.idea/
+credentials.cfg
+rules.cfg
