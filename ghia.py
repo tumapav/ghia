@@ -2,7 +2,7 @@ import click
 import re
 import configparser
 from ghia_patterns import GhiaPatterns
-
+from ghia_requests import GhiaRequests
 
 def validate_credentials_file(ctx, param, value):
     config = configparser.ConfigParser()
@@ -11,7 +11,9 @@ def validate_credentials_file(ctx, param, value):
 
     if "github" not in config or "token" not in config["github"]:
         raise click.BadParameter(GhiaPatterns.CONFIG_VALIDATION_ERR)
-    return True
+
+    token = config["github"]["token"]
+    return token
 
 
 def validate_config_file(ctx, param, value):
@@ -25,7 +27,8 @@ def validate_config_file(ctx, param, value):
     gp = GhiaPatterns(config)
     gp.parse()
 
-    return True
+    return gp
+
 
 def validate_reposlug(ctx, param, value):
     _VALIDATION_ERR = "not in owner/repository format"
@@ -41,7 +44,7 @@ def validate_reposlug(ctx, param, value):
     if parts[0] == "." or parts[1] == ".":
         raise click.BadParameter(_VALIDATION_ERR)
 
-    return True
+    return value
 
 
 @click.command()
@@ -69,8 +72,19 @@ def validate_reposlug(ctx, param, value):
               callback=validate_config_file)
 def ghia(reposlug, strategy, dry_run, config_auth, config_rules):
     """CLI tool for automatic issue assigning of GitHub issues"""
-    pass
 
+    token = config_auth
+    ghia_patterns = config_rules
+    ghia_patterns.set_strategy(strategy)
+    ghia_patterns.set_dry_run(dry_run)
+
+    req = GhiaRequests(token, reposlug)
+    issues = req.get_issues()
+
+    for issue in issues:
+        updated_issue = ghia_patterns.apply_to(issue)
+        if updated_issue:
+            req.update_issue(updated_issue)
 
 if __name__ == '__main__':
     ghia()
