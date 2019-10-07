@@ -128,13 +128,14 @@ class GhiaPatterns:
             assignees[user] = self.AssigneeState(user, default_state)
 
         # Process users to be added
-        for user in to_add:
-            if user in issue.assignees:
-                # User matched in GHIA and was already assigned => Always keep
-                assignees[user].state = self.AssigneeState.KEPT
-            else:
-                # User matched in GHIA and was NOT assigned => Add user
-                assignees[user] = self.AssigneeState(user, self.AssigneeState.ADDED)
+        if self.strategy != "set" or len(issue.assignees) == 0:
+            for user in to_add:
+                if user in issue.assignees:
+                    # User matched in GHIA and was already assigned => Always keep
+                    assignees[user].state = self.AssigneeState.KEPT
+                else:
+                    # User matched in GHIA and was NOT assigned => Add user
+                    assignees[user] = self.AssigneeState(user, self.AssigneeState.ADDED)
 
         # Get sorted report
         sorted_assignees_report = sorted(list(assignees), key=str.casefold)
@@ -152,5 +153,15 @@ class GhiaPatterns:
 
         res = list(filter(lambda x: assignees[x].state >= self.AssigneeState.KEPT, assignees))
         issue.assignees = set(res)
+
+        # Check for FALLBACK label
+        if len(issue.assignees) == 0 and self.fallback:
+            click.secho("   FALLBACK", bold=True, fg='yellow', nl=False)
+            click.echo(":")
+            if self.fallback in issue.labels:
+                click.echo(f"already has label {self.fallback}")
+            else:
+                click.echo(f"added label {self.fallback}")
+                issue.labels.add(self.fallback)
 
         return issue

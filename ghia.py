@@ -86,5 +86,6 @@ def ghia(reposlug, strategy, dry_run, config_auth, config_rules):
         if updated_issue and not dry_run:
             req.update_issue(updated_issue)
 
+
 if __name__ == '__main__':
     ghia()
