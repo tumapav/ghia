@@ -4,6 +4,7 @@ import configparser
 from ghia_patterns import GhiaPatterns
 from ghia_requests import GhiaRequests
 
+
 def validate_credentials_file(ctx, param, value):
     config = configparser.ConfigParser()
     str_content = value.read()
@@ -18,6 +19,7 @@ def validate_credentials_file(ctx, param, value):
 
 def validate_config_file(ctx, param, value):
     config = configparser.ConfigParser()
+    config.optionxform = str #TODO: check
     str_content = value.read()
     config.read_string(str_content)
 
@@ -34,7 +36,7 @@ def validate_reposlug(ctx, param, value):
     _VALIDATION_ERR = "not in owner/repository format"
 
     # Check github name/repo format
-    res = re.match('^[A-Za-z0-9\.-_]+/[A-Za-z0-9\.-_]+$', value)
+    res = re.match('^[A-Za-z0-9.\-_]+/[A-Za-z0-9.\-_]+$', value)
     if res is None:
         raise click.BadParameter(_VALIDATION_ERR)
 

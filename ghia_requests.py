@@ -1,52 +1,6 @@
 import requests
 import click
-import json
-import re
-
-
-class Issue:
-
-    def __init__(self, data):
-        self.data = data
-        self.number = None
-        self.body = None
-        self.title = None
-        self.repo_slug = None
-        self.url = None
-        self.assignees = set()
-        self.labels = set()
-        self.parse(data)
-
-    def parse(self, data):
-        self.number = data["number"]
-        self.title = data["title"]
-        self.body = data["body"]
-
-        for label in data["labels"]:
-            self.labels.add(label["name"])
-
-        for user in data["assignees"]:
-            self.assignees.add(user["login"])
-
-        self.url = data["url"]
-        self.repo_slug = re.match("^.*/([^/]+/[^/]+)$", data["repository_url"]).group(1)
-
-    def __str__(self):
-        res = ""
-        res += f"RepoSlug: {self.repo_slug}\n"
-        res += f"Title: {self.title} (#{self.number})\n"
-        res += f"Body: {self.body}\n"
-        res += f"Labels: {self.labels}\n"
-        res += f"Assigned: {self.assignees}\n"
-        return res
-
-    def get_update_json(self):
-        """Returns json to send to Github API to update labels, assignees"""
-        res = {
-            "assignees": list(self.assignees),
-            "labels": list(self.labels),
-        }
-        return json.dumps(res)
+from ghia_issue import Issue
 
 
 class GhiaRequests:
@@ -65,23 +19,34 @@ class GhiaRequests:
         req.headers['Authorization'] = f'token {self.token}'
         return req
 
-    def get_issues(self):
-        r = self.session.get(f'https://api.github.com/repos/{self.slug}/issues')
-        raw_issues = r.json()
+    def get_issues(self, issues=[], url=None):
+        r = self.session.get(f'https://api.github.com/repos/{self.slug}/issues' if url is None else url)
 
-        issues = []
+        if r.status_code != 200:
+            click.secho("ERROR", fg="red", bold=True, nl=False, err=True)
+            click.echo(f": Could not list issues for repository {self.slug}", err=True)
+            exit(10)
+
+        raw_issues = r.json()
         for raw_issue in raw_issues:
+            if raw_issue["state"] == "closed":
+                continue
             issue = Issue(raw_issue)
             issues.append(issue)
-            print(issue)
-        return issues
+
+        if "next" in r.links:
+            url = r.links["next"]["url"]
+            return self.get_issues(issues, url)
+        else:
+            return issues
 
     def update_issue(self, issue):
         data = issue.get_update_json()
         r = self.session.patch(f'https://api.github.com/repos/{self.slug}/issues/{issue.number}', data)
-        raw_issue = r.json()
-        #print(raw_issue)
-        issue = Issue(raw_issue)
-        return issue
+        if r.status_code != 200:
+            click.secho("   ERROR", fg="red", bold=True, nl=False, err=True)
+            click.echo(f": Could not update issue {self.slug}#{issue.number}", err=True)
+            return
+
 
 

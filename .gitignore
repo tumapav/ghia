@@ -1,5 +1,6 @@
 venv/
 .idea/
 __pycache__/
+tests*
 credentials.cfg
 rules.cfg

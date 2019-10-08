@@ -27,7 +27,7 @@ class Pattern:
 
         # Check regex validity
         try:
-            self.regex = re.compile(parts[1], flags=re.IGNORECASE)
+            self.regex = re.compile(parts[1], flags=re.IGNORECASE) #re.MULTILINE
         except re.error:
             raise click.BadParameter(GhiaPatterns.CONFIG_VALIDATION_ERR)
 
@@ -73,7 +73,7 @@ class GhiaPatterns:
         self.dry_run = dry_run
 
     def validate_username(self, username):
-        res = re.match('^[A-Za-z0-9\.-_]+$', username)
+        res = re.match('^[A-Za-z0-9.\-_]+$', username)
         if res is None:
             raise click.BadParameter(self.CONFIG_VALIDATION_ERR)
 
@@ -123,7 +123,7 @@ class GhiaPatterns:
                     to_add.add(username)
 
         # Process users assigned to the issue prior GHIA
-        default_state = self.AssigneeState.KEPT if self.strategy == "append" else self.AssigneeState.REMOVED
+        default_state = self.AssigneeState.REMOVED if self.strategy == "change" else self.AssigneeState.KEPT
         for user in issue.assignees:
             assignees[user] = self.AssigneeState(user, default_state)
 
@@ -154,6 +154,8 @@ class GhiaPatterns:
         res = list(filter(lambda x: assignees[x].state >= self.AssigneeState.KEPT, assignees))
         issue.assignees = set(res)
 
+        changed = False
+
         # Check for FALLBACK label
         if len(issue.assignees) == 0 and self.fallback:
             click.secho("   FALLBACK", bold=True, fg='yellow', nl=False)
@@ -163,5 +165,10 @@ class GhiaPatterns:
             else:
                 click.echo(f"added label {self.fallback}")
                 issue.labels.add(self.fallback)
+                changed = True
 
-        return issue
+        kept_count = sum(1 for x in assignees if assignees[x].state == self.AssigneeState.KEPT)
+        if kept_count != len(assignees):
+            changed = True
+
+        return issue if changed else None
