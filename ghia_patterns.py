@@ -159,11 +159,11 @@ class GhiaPatterns:
         # Check for FALLBACK label
         if len(issue.assignees) == 0 and self.fallback:
             click.secho("   FALLBACK", bold=True, fg='yellow', nl=False)
-            click.echo(":")
+            click.echo(": ", nl=False)
             if self.fallback in issue.labels:
-                click.echo(f"already has label {self.fallback}")
+                click.echo(f"already has label \"{self.fallback}\"")
             else:
-                click.echo(f"added label {self.fallback}")
+                click.echo(f"added label \"{self.fallback}\"")
                 issue.labels.add(self.fallback)
                 changed = True
 
