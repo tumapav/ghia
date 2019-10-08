@@ -1,5 +1,6 @@
 import re
 import click
+import copy
 
 
 class Pattern:
@@ -105,8 +106,10 @@ class GhiaPatterns:
             self.username = username
             self.state = state
 
-    def apply_to(self, issue):
+    def apply_to(self, orig_issue):
         """Applies the saved patterns to the given issue."""
+
+        issue = copy.deepcopy(orig_issue)
 
         click.secho("-> ", nl=False)
         click.secho(f"{issue.repo_slug}#{issue.number} ", bold=True, nl=False)
@@ -137,20 +140,6 @@ class GhiaPatterns:
                     # User matched in GHIA and was NOT assigned => Add user
                     assignees[user] = self.AssigneeState(user, self.AssigneeState.ADDED)
 
-        # Get sorted report
-        sorted_assignees_report = sorted(list(assignees), key=str.casefold)
-        for user in sorted_assignees_report:
-            state = assignees[user].state
-
-            if state == self.AssigneeState.REMOVED:
-                click.secho("   - ", bold=True, fg='red', nl=False)
-            elif state == self.AssigneeState.KEPT:
-                click.secho("   = ", bold=True, fg='blue', nl=False)
-            elif state == self.AssigneeState.ADDED:
-                click.secho("   + ", bold=True, fg='green', nl=False)
-
-            click.echo(f"{user}")
-
         res = list(filter(lambda x: assignees[x].state >= self.AssigneeState.KEPT, assignees))
         issue.assignees = set(res)
 
@@ -172,3 +161,35 @@ class GhiaPatterns:
             changed = True
 
         return issue if changed else None
+
+    def print_report(self, issue, updated_issue):
+
+        # there was an error updating the issue, show no difference from original issue
+        if updated_issue is None:
+            updated_issue = issue
+
+        assignees = {}
+
+        for user in issue.assignees:
+            assignees[user] = self.AssigneeState(user, self.AssigneeState.REMOVED)
+
+        # Process users to be added
+        for user in updated_issue.assignees:
+            if user in issue.assignees:
+                assignees[user].state = self.AssigneeState.KEPT
+            else:
+                assignees[user] = self.AssigneeState(user, self.AssigneeState.ADDED)
+
+        # Get sorted report
+        sorted_assignees_report = sorted(list(assignees), key=str.casefold)
+        for user in sorted_assignees_report:
+            state = assignees[user].state
+
+            if state == self.AssigneeState.REMOVED:
+                click.secho("   - ", bold=True, fg='red', nl=False)
+            elif state == self.AssigneeState.KEPT:
+                click.secho("   = ", bold=True, fg='blue', nl=False)
+            elif state == self.AssigneeState.ADDED:
+                click.secho("   + ", bold=True, fg='green', nl=False)
+
+            click.echo(f"{user}")

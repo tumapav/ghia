@@ -86,7 +86,8 @@ def ghia(reposlug, strategy, dry_run, config_auth, config_rules):
     for issue in issues:
         updated_issue = ghia_patterns.apply_to(issue)
         if updated_issue and not dry_run:
-            req.update_issue(updated_issue)
+            updated_issue = req.update_issue(updated_issue)
+        ghia_patterns.print_report(issue, updated_issue)
 
 
 if __name__ == '__main__':

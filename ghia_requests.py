@@ -46,7 +46,11 @@ class GhiaRequests:
         if r.status_code != 200:
             click.secho("   ERROR", fg="red", bold=True, nl=False, err=True)
             click.echo(f": Could not update issue {self.slug}#{issue.number}", err=True)
-            return
+            return None
+
+        raw_issue = r.json()
+        return Issue(raw_issue)
+
 
 
 
