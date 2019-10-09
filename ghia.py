@@ -13,8 +13,7 @@ def validate_credentials_file(ctx, param, value):
     if "github" not in config or "token" not in config["github"]:
         raise click.BadParameter(GhiaPatterns.CONFIG_VALIDATION_ERR)
 
-    token = config["github"]["token"]
-    return token
+    return config["github"]["token"]
 
 
 def validate_config_file(ctx, param, value):
@@ -26,10 +25,7 @@ def validate_config_file(ctx, param, value):
     if "patterns" not in config:
         raise click.BadParameter(GhiaPatterns.CONFIG_VALIDATION_ERR)
 
-    gp = GhiaPatterns(config)
-    gp.parse()
-
-    return gp
+    return GhiaPatterns(config)
 
 
 def validate_reposlug(ctx, param, value):

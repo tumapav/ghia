@@ -5,6 +5,8 @@ from ghia_issue import Issue
 
 class GhiaRequests:
     CONFIG_VALIDATION_ERR = "incorrect configuration format"
+    HTTP_OK = 200
+    EXIT_CODE_ISSUES_NA = 10
 
     def __init__(self, token, slug):
         self.token = token
@@ -20,12 +22,16 @@ class GhiaRequests:
         return req
 
     def get_issues(self, issues=[], url=None):
-        r = self.session.get(f'https://api.github.com/repos/{self.slug}/issues' if url is None else url)
+        success = True
+        try:
+            r = self.session.get(f'https://api.github.com/repos/{self.slug}/issues' if url is None else url)
+        except requests.exceptions.RequestException:
+            success = False
 
-        if r.status_code != 200:
+        if not success or r.status_code != self.HTTP_OK:
             click.secho("ERROR", fg="red", bold=True, nl=False, err=True)
             click.echo(f": Could not list issues for repository {self.slug}", err=True)
-            exit(10)
+            exit(self.EXIT_CODE_ISSUES_NA)
 
         raw_issues = r.json()
         for raw_issue in raw_issues:
@@ -42,15 +48,17 @@ class GhiaRequests:
 
     def update_issue(self, issue):
         data = issue.get_update_json()
-        r = self.session.patch(f'https://api.github.com/repos/{self.slug}/issues/{issue.number}', data)
-        if r.status_code != 200:
+        success = True
+        try:
+            r = self.session.patch(f'https://api.github.com/repos/{self.slug}/issues/{issue.number}', data)
+        except requests.exceptions.RequestException:
+            success = False
+
+        if not success or r.status_code != self.HTTP_OK:
             click.secho("   ERROR", fg="red", bold=True, nl=False, err=True)
             click.echo(f": Could not update issue {self.slug}#{issue.number}", err=True)
             return None
 
         raw_issue = r.json()
         return Issue(raw_issue)
-
-
-
 

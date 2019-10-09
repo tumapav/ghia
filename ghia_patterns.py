@@ -75,6 +75,7 @@ class GhiaPatterns:
         self.strategy = None
         self.dry_run = False
         self.patterns = {}
+        self._parse()
 
     def set_strategy(self, strategy):
         self.strategy = strategy
@@ -87,7 +88,7 @@ class GhiaPatterns:
         if res is None:
             raise click.BadParameter(self.CONFIG_VALIDATION_ERR)
 
-    def parse(self):
+    def _parse(self):
         """Initializes the patterns from the configuration dictionary."""
 
         patterns_conf = self.conf["patterns"]
@@ -106,7 +107,7 @@ class GhiaPatterns:
             self.fallback = self.conf["fallback"]["label"]
 
     def apply_to(self, orig_issue):
-        """Applies the saved patterns to the given issue."""
+        """Applies the patterns to the given issue."""
 
         issue = copy.deepcopy(orig_issue)
 
@@ -163,9 +164,9 @@ class GhiaPatterns:
         return issue if changed else None
 
     def print_report(self, issue, updated_issue):
-        """Prints colored diff report about applied assignee changes"""
+        """Prints colored diff report about assignee changes"""
 
-        # there was an error updating the issue, show no difference from original issue
+        # If there was an error updating the issue, show no difference from original issue
         if updated_issue is None:
             updated_issue = issue
 
