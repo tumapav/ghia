@@ -19,7 +19,7 @@ def validate_credentials_file(ctx, param, value):
 
 def validate_config_file(ctx, param, value):
     config = configparser.ConfigParser()
-    config.optionxform = str #TODO: check
+    config.optionxform = str    # maintain case sensitivity in keys
     str_content = value.read()
     config.read_string(str_content)
 

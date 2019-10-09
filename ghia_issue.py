@@ -3,6 +3,7 @@ import re
 
 
 class Issue:
+    """Issue representation for the purposes of GHIA"""
 
     def __init__(self, data):
         self.data = data
@@ -16,6 +17,7 @@ class Issue:
         self.parse(data)
 
     def parse(self, data):
+        """Initialize issue instance from the API data"""
         self.number = data["number"]
         self.title = data["title"]
         self.body = data["body"]
@@ -30,6 +32,7 @@ class Issue:
         self.repo_slug = re.match("^.*/([^/]+/[^/]+)$", data["repository_url"]).group(1)
 
     def __str__(self):
+        """Debug string representation of issue"""
         res = ""
         res += f"RepoSlug: {self.repo_slug}\n"
         res += f"Title: {self.title} (#{self.number})\n"

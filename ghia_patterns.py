@@ -28,7 +28,7 @@ class Pattern:
 
         # Check regex validity
         try:
-            self.regex = re.compile(parts[1], flags=re.IGNORECASE) #re.MULTILINE
+            self.regex = re.compile(parts[1], flags=re.IGNORECASE)
         except re.error:
             raise click.BadParameter(GhiaPatterns.CONFIG_VALIDATION_ERR)
 
@@ -59,6 +59,15 @@ class Pattern:
 
 class GhiaPatterns:
     CONFIG_VALIDATION_ERR = "incorrect configuration format"
+
+    class AssigneeState:
+        REMOVED = -1
+        KEPT = 0
+        ADDED = 1
+
+        def __init__(self, username, state):
+            self.username = username
+            self.state = state
 
     def __init__(self, config_dict):
         self.conf = config_dict
@@ -96,16 +105,6 @@ class GhiaPatterns:
         if "fallback" in self.conf and "label" in self.conf["fallback"]:
             self.fallback = self.conf["fallback"]["label"]
 
-    class AssigneeState:
-
-        REMOVED = -1
-        KEPT = 0
-        ADDED = 1
-
-        def __init__(self, username, state):
-            self.username = username
-            self.state = state
-
     def apply_to(self, orig_issue):
         """Applies the saved patterns to the given issue."""
 
@@ -123,7 +122,8 @@ class GhiaPatterns:
 
             for pattern in patterns:
                 if pattern.match(issue):
-                    to_add.add(username)
+                    username_correct_case = self._get_username_case(username, issue)
+                    to_add.add(username_correct_case)
 
         # Process users assigned to the issue prior GHIA
         default_state = self.AssigneeState.REMOVED if self.strategy == "change" else self.AssigneeState.KEPT
@@ -163,6 +163,7 @@ class GhiaPatterns:
         return issue if changed else None
 
     def print_report(self, issue, updated_issue):
+        """Prints colored diff report about applied assignee changes"""
 
         # there was an error updating the issue, show no difference from original issue
         if updated_issue is None:
@@ -193,3 +194,11 @@ class GhiaPatterns:
                 click.secho("   + ", bold=True, fg='green', nl=False)
 
             click.echo(f"{user}")
+
+    @staticmethod
+    def _get_username_case(username_ci, issue):
+        """Does case insensitive search in the current issue assignees to find the correct case of username if avail."""
+        for username in issue.assignees:
+            if username.lower() == username_ci.lower():
+                return username
+        return username_ci
