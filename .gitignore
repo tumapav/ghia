@@ -1,6 +1,6 @@
 venv/
 .idea/
 __pycache__/
-tests*
+tests_environment/tumapav
 credentials.cfg
 rules.cfg
