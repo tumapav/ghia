@@ -10,6 +10,7 @@ class Pattern:
     def __init__(self, text):
         self.text = text
         self.regex = None
+        self.str_regex = None
         self.type = None
         self.parse()
 
@@ -21,6 +22,7 @@ class Pattern:
             raise click.BadParameter(GhiaPatterns.CONFIG_VALIDATION_ERR)
 
         self.type = parts[0]
+        self.str_regex = parts[1]
 
         # Check pattern type
         if parts[0] not in self.PATTERN_TYPES:

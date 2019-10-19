@@ -5,6 +5,7 @@ import hmac
 import os
 from flask import Flask
 from flask import request
+from flask import render_template
 from ghia_patterns import GhiaPatterns
 from ghia_requests import GhiaRequests
 from ghia_issue import Issue
@@ -188,7 +189,7 @@ def create_app():
         if request.method == 'POST':
             return process_webhook()
 
-        return 'TODO website'
+        return render_template('index.html', user=user, patterns=ghia_patterns)
 
     return app
 

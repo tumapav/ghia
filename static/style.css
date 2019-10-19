@@ -1,0 +1,31 @@
+body{
+    font-family: Verdana, Arial, sans-serif;
+    padding: 0 20px;
+}
+table {
+    border: 1px solid black;
+    border-collapse: collapse;
+}
+td {
+    padding: 0.5em 1em;
+}
+.avatar{
+    width: 2.5em;
+    height: 2.5em;
+    vertical-align: -0.8em;
+    margin-right: 0.8em;
+}
+table tr > td:first-child{
+    background-color: skyblue;
+    font-weight: bold;
+}
+.label{
+    padding: 0.15em 0.8em;
+    background-color: darkgreen;
+    color: white;
+    border-radius: 4px;
+}
+ul{
+    padding: 0.1em 1em;
+    margin: 0;
+}

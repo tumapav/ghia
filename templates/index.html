@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>GHIA main page</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <h1>GHIA - homepage</h1>
+    <table border="1">
+        <tr>
+            <td>Active user</td>
+            <td>
+                <a href="{{ user.html_url }}" title="User profile">
+                    <img class="avatar" src="{{ user.avatar_url }}" alt="Users avatar">{{ user.login }}
+                </a>
+            </td>
+        </tr>
+        <tr>
+            <td>Fallback label</td>
+            <td>
+                {% if patterns.fallback %}
+                <span class="label">{{ patterns.fallback }}</span>
+                {% else %}
+                    <em>N/A</em>
+                {% endif %}
+            </td>
+        </tr>
+        </tr>
+        <tr>
+            <td>Patterns</td>
+            <td>
+                <ul>
+                {% for p_user in patterns.patterns %}
+                    <li>{{ p_user }}
+                        <ul>
+                        {% for pattern in patterns.patterns[p_user] %}
+                            <li>{{ pattern.type }} - <code>{{ pattern.str_regex }}</code></li>
+                        {% endfor %}
+                        </ul>
+                    </li>
+                {% else %}
+                    No patterns defined
+                {% endfor %}
+                </ul>
+            </td>
+        </tr>
+    </table>
+
+</body>
+</html>
