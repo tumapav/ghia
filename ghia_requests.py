@@ -8,7 +8,7 @@ class GhiaRequests:
     HTTP_OK = 200
     EXIT_CODE_ISSUES_NA = 10
 
-    def __init__(self, token, slug):
+    def __init__(self, token, slug=None):
         self.token = token
         self.slug = slug
 
@@ -20,6 +20,19 @@ class GhiaRequests:
     def token_auth(self, req):
         req.headers['Authorization'] = f'token {self.token}'
         return req
+
+    def get_user(self):
+        success = True
+        try:
+            r = self.session.get(f'https://api.github.com/user')
+        except requests.exceptions.RequestException:
+            success = False
+
+        if not success or r.status_code != self.HTTP_OK:
+            raise RuntimeError("Could not fetch Github user identity.")
+
+        user_data = r.json()
+        return user_data
 
     def get_issues(self, issues=[], url=None):
         success = True
