@@ -38,7 +38,7 @@ def validate_reposlug(ctx, param, value):
     _VALIDATION_ERR = "not in owner/repository format"
 
     # Check github name/repo format
-    res = re.match('^[A-Za-z0-9.\-_]+/[A-Za-z0-9.\-_]+$', value)
+    res = re.match('^[A-Za-z0-9._-]+/[A-Za-z0-9._-]+$', value)
     if res is None:
         raise click.BadParameter(_VALIDATION_ERR)
 
@@ -92,7 +92,7 @@ def ghia(reposlug, strategy, dry_run, config_auth, config_rules):
         ghia_patterns.print_report(issue, updated_issue)
 
 
-def create_app():
+def create_app(conf):
     app = Flask(__name__)
     BAD_REQUEST = 400
     ALLOWED_ACTIONS = ["opened", "edited", "transferred", "reopened", "assigned", "unassigned", "labeled", "unlabeled"]
@@ -118,10 +118,11 @@ def create_app():
         raise click.BadParameter(GhiaPatterns.CONFIG_VALIDATION_ERR)
 
     if "secret" not in config["github"]:
-        raise click.BadParameter("GitHub secret required for web version.")
+        secret = None
+    else:
+        secret = config["github"]["secret"]
 
     token = config["github"]["token"]
-    secret = config["github"]["secret"]
     ghia_patterns = GhiaPatterns(config)
     ghia_patterns.set_strategy('append')
 
@@ -130,9 +131,13 @@ def create_app():
 
     def github_verify_request():
         github_signed = request.headers.get('X-Hub-Signature')
-        if github_signed is None:
-            # If the signature is missing from the request, user didn't configure it for the webhook
+        if github_signed is None and secret is None:
+            # Signature check is skipped only if the secret is missing in the ghia-config and in the webhook config
             return True
+        elif github_signed is None or secret is None:
+            # GitHub request has signature but ghia-config is missing the secret
+            # or ghia-config has secret but webhook doesn't send signed request
+            raise ValueError("Signature verification failed.")
 
         try:
             hash_name, hash_value = github_signed.split('=', maxsplit=2)
