@@ -161,6 +161,9 @@ def create_app(conf):
         if data is None:
             return "Webhook request missing JSON data.", BAD_REQUEST
 
+        if data["issue"]["state"] == "closed":
+            return "Closed issue is ignored."
+
         action = data["action"]
         if action not in ALLOWED_ACTIONS:
             return "This issue action is ignored."
