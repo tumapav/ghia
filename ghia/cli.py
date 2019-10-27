@@ -45,7 +45,7 @@ def validate_reposlug(ctx, param, value):
     return value
 
 
-@click.command()
+@click.command(prog_name='ghia')
 @click.argument('reposlug',
                 callback=validate_reposlug,
                 type=click.STRING)
