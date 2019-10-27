@@ -1,6 +1,6 @@
 import requests
 import click
-from ghia_issue import Issue
+from .ghia_issue import Issue
 
 
 class GhiaRequests:

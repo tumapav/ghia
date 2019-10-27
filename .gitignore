@@ -4,3 +4,4 @@ __pycache__/
 tests_environment/tumapav
 credentials.cfg
 rules.cfg
+ghia_tumapav3.egg-info

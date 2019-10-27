@@ -1,8 +1,8 @@
 import re
 import click
 import configparser
-from ghia_patterns import GhiaPatterns
-from ghia_requests import GhiaRequests
+from .ghia_patterns import GhiaPatterns
+from .ghia_requests import GhiaRequests
 
 
 def validate_credentials_file(ctx, param, value):

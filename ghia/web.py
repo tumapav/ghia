@@ -5,9 +5,9 @@ import os
 from flask import Flask
 from flask import request
 from flask import render_template
-from ghia_patterns import GhiaPatterns
-from ghia_requests import GhiaRequests
-from ghia_issue import Issue
+from .ghia_patterns import GhiaPatterns
+from .ghia_requests import GhiaRequests
+from .ghia_issue import Issue
 
 
 def create_app(conf):
