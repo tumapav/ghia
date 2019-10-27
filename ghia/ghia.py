@@ -2,4 +2,4 @@ from .cli import ghia
 
 
 def main():
-    ghia()
+    ghia(prog_name='ghia')
