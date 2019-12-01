@@ -43,3 +43,14 @@ label=X-Need assignment
 **More information at:**
 https://github.com/cvut/ghia/tree/web
 
+
+## Tests
+Run tests with `setup.py test` or `python -m pytest -v tests/unit/`.
+
+### To re-record cassettes
+1.  Remove all files in `tests/unit/fixtures/cassettes`
+2.  Create a test repository using `tests_environment/setup.sh`
+3.  Define the following environment variables:
+      *  `GITHUB_TOKEN` - GitHub access token
+      *  `GITHUB_REPO` - full name of the test repository (e.g. mi-pyt-ghia/tumapav)
+      *  `GITHUB_USER` - GitHub username the token belongs to
