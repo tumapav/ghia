@@ -1,3 +1,5 @@
 include README.md
 include LICENSE
 include requirements.txt
+recursive-include tests *.py *.cfg *.json
+recursive-include tests_environment *.sh *.txt
