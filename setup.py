@@ -17,6 +17,8 @@ setup(
     license='MIT',
     url='https://github.com/tumapav/ghia',
     packages=['ghia'],
+    setup_requires=['pytest-runner'],
+    tests_require=['pytest', 'betamax', 'flexmock'],
     classifiers=[
         'Intended Audience :: Developers',
         'Natural Language :: English',
