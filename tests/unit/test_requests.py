@@ -90,6 +90,7 @@ def test_get_issues_update_issue(betamax_session):
     assert issue.assignees == set()
     issue.assignees.add('ghia-jane')
     issue.labels.add('added_label')
+    print("Update1: "+str(issue))
     updated_issue = g.update_issue(issue)
     assert updated_issue is not None
     assert 'ghia-jane' in updated_issue.assignees
@@ -97,6 +98,7 @@ def test_get_issues_update_issue(betamax_session):
 
     updated_issue.assignees.remove('ghia-jane')
     updated_issue.labels.remove('added_label')
+    print("Update2: " + str(updated_issue))
     updated_issue = g.update_issue(updated_issue)
     assert updated_issue is not None
     assert 'ghia-jane' not in updated_issue.assignees

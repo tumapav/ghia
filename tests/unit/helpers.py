@@ -44,7 +44,7 @@ def betamax_setup():
 
         # Set match strategy
         config.default_cassette_options['match_requests_on'].extend([
-            'uri', 'method', 'body'
+            'headers', 'body'
         ])
 
         # Hide the token in the cassettes
