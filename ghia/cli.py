@@ -46,7 +46,7 @@ def validate_reposlug(ctx, param, value):
 
 
 @click.command()
-@click.argument('reposlug',
+@click.argument('REPOSLUG',
                 callback=validate_reposlug,
                 type=click.STRING)
 @click.option('-s', '--strategy',

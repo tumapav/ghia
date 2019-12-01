@@ -9,12 +9,11 @@ from .ghia_patterns import GhiaPatterns
 from .ghia_requests import GhiaRequests
 from .ghia_issue import Issue
 
+BAD_REQUEST = 400
+ALLOWED_ACTIONS = ["opened", "edited", "transferred", "reopened", "assigned", "unassigned", "labeled", "unlabeled"]
 
-def create_app(conf):
-    app = Flask(__name__)
-    BAD_REQUEST = 400
-    ALLOWED_ACTIONS = ["opened", "edited", "transferred", "reopened", "assigned", "unassigned", "labeled", "unlabeled"]
 
+def prepare_app():
     env_conf = os.getenv('GHIA_CONFIG')
     if env_conf is None:
         raise click.BadParameter("GHIA_CONFIG is missing from the environment.")
@@ -41,10 +40,30 @@ def create_app(conf):
         secret = config["github"]["secret"]
 
     token = config["github"]["token"]
+    return token, secret, config
+
+
+def prepare_app_test(conf):
+    session = conf["session"]
+    config = conf["config"]
+    token = conf["TOKEN"]
+    secret = conf["SECRET"]
+    return token, secret, config, session
+
+
+def create_app(conf):
+    app = Flask(__name__)
+
+    if conf and "test" in conf and conf["test"]:
+        token, secret, config, session = prepare_app_test(conf)
+    else:
+        token, secret, config = prepare_app()
+        session = None
+
     ghia_patterns = GhiaPatterns(config)
     ghia_patterns.set_strategy('append')
 
-    req = GhiaRequests(token)
+    req = GhiaRequests(token, session=session)
     user = req.get_user()
 
     def github_verify_request():

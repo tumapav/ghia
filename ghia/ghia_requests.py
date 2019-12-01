@@ -8,12 +8,12 @@ class GhiaRequests:
     HTTP_OK = 200
     EXIT_CODE_ISSUES_NA = 10
 
-    def __init__(self, token, slug=None):
+    def __init__(self, token, slug=None, session=None):
         self.token = token
         self.slug = slug
 
         # Init the requests Session
-        self.session = requests.Session()
+        self.session = session or requests.Session()
         self.session.headers = {'User-Agent': 'GHIA-Python v0.1'}
         self.session.auth = self.token_auth
 
