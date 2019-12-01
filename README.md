@@ -54,3 +54,4 @@ Run tests with `setup.py test` or `python -m pytest -v tests/unit/`.
       *  `GITHUB_TOKEN` - GitHub access token
       *  `GITHUB_REPO` - full name of the test repository (e.g. mi-pyt-ghia/tumapav)
       *  `GITHUB_USER` - GitHub username the token belongs to
+4.  Run the tests `python -m pytest -v tests/unit/`
