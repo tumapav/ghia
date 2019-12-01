@@ -1,5 +1,6 @@
 venv/
 .idea/
+.eggs/
 __pycache__/
 dist/
 build/
