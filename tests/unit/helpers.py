@@ -42,6 +42,11 @@ def betamax_setup():
             USER = 'tumapav'
             config.default_cassette_options['record_mode'] = 'none'
 
+        # Set match strategy
+        config.default_cassette_options['match_requests_on'].extend([
+            'uri', 'method', 'headers', 'body'
+        ])
+
         # Hide the token in the cassettes
         config.define_cassette_placeholder('<TOKEN>', TOKEN)
     return TOKEN, REPO, USER
