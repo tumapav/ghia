@@ -7,7 +7,7 @@ with open('README.md') as f:
 
 setup(
     name='ghia_tumapav3',
-    version='0.3.4',
+    version='0.4',
     description='Automatic GitHub issue assignment tool',
     long_description=long_description,
     long_description_content_type="text/markdown",
